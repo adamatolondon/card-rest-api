@@ -20,10 +20,8 @@ public class CardServiceTest {
 	private CardService cardService;
 
 	private CardDto cardDto;
-
 	private Long customerId;
 	private CardData cardData;
-	private Long cardId;
 	private Optional<Card> optionalCard;
 
 	private void givenCard1() {
@@ -63,9 +61,12 @@ public class CardServiceTest {
 	}
 
 	private void givenCard2Change() {
-		cardDto = new CardDto();
+		cardDto.setCardId(optionalCard.get().getId());
 		cardDto.setCustomerId(customerId);
 		cardDto.setExpiryDateMonth(8);
+		cardDto.setAccountHolder(null);
+		cardDto.setExpiryDateYear(null);
+		cardDto.setNumber(null);
 	}
 
 	private void givenCustomerId1() {
@@ -93,11 +94,11 @@ public class CardServiceTest {
 	}
 
 	private void whenGetIsCalled() throws Exception {
-		optionalCard = cardService.get(cardId);
+		optionalCard = cardService.get(cardData.getCard().getId());
 	}
 
 	private void whenRemoveIsCalled() throws Exception {
-		cardService.remove(cardId);
+		cardService.remove(cardData.getCard().getId());
 	}
 
 	private void thenCard1IsCreated() {
@@ -148,7 +149,7 @@ public class CardServiceTest {
 		Assertions.assertEquals("Charlie Chaplin", card.getAccountHolderName());
 		Assertions.assertEquals("3333222222223333", card.getNumber());
 		Assertions.assertNotNull(card.getExpiryDate());
-		Assertions.assertEquals(8, card.getExpiryDate().getMonthValue());
+		Assertions.assertEquals(6, card.getExpiryDate().getMonthValue());
 		Assertions.assertEquals(2026, card.getExpiryDate().getYear());
 	}
 
@@ -159,7 +160,7 @@ public class CardServiceTest {
 		Assertions.assertNotNull(card);
 		Assertions.assertEquals(customerId, card.getCustomerId());
 		Assertions.assertEquals("Stan Laurel", card.getAccountHolderName());
-		Assertions.assertEquals("3333222222223322", card.getNumber());
+		Assertions.assertEquals("3333222222223300", card.getNumber());
 		Assertions.assertNotNull(card.getExpiryDate());
 		Assertions.assertEquals(2, card.getExpiryDate().getMonthValue());
 		Assertions.assertEquals(2028, card.getExpiryDate().getYear());
@@ -174,6 +175,11 @@ public class CardServiceTest {
 	private void thenCardIsMissing() {
 		Assertions.assertNotNull(optionalCard);
 		Assertions.assertTrue(optionalCard.isEmpty());
+	}
+
+	private void thenCardIsFound() {
+		Assertions.assertNotNull(optionalCard);
+		Assertions.assertTrue(optionalCard.isPresent());
 	}
 
 	@Test
@@ -192,6 +198,7 @@ public class CardServiceTest {
 		thenCard2IsCreated();
 
 		whenGetIsCalled();
+		thenCardIsFound();
 		givenCard2Change();
 		whenUpdateIsCalled();
 		thenCard2IsModified();

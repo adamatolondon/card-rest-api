@@ -14,7 +14,7 @@ public class Card {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	@Column(name = "customer_id")
-	private String customerId;
+	private Long customerId;
 	private String number;
 	@Column(name = "account_holder")
 	private String accountHolderName;
@@ -25,11 +25,11 @@ public class Card {
 		return id;
 	}
 
-	public String getCustomerId() {
+	public Long getCustomerId() {
 		return customerId;
 	}
 
-	public void setCustomerId(String customerId) {
+	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
 
