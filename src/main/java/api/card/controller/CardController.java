@@ -79,7 +79,7 @@ public class CardController {
 	public ResponseEntity<RestResponse> patch(@PathVariable Long id, @RequestBody CardDto cardDto) {
 		RestResponse restResponse = new RestResponse();
 		try {
-			CardData cardData = cardService.update(cardDto);
+			CardData cardData = cardService.update(id, cardDto);
 			if (cardData.getError().isPresent()) {
 				restResponse.setMessage(cardData.getError().get().getMessage());
 				restResponse.setStatus(ResponseStatus.ERROR.getStatus());

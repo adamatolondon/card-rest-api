@@ -17,7 +17,7 @@ POST **/card**
 GET **/card/{id}**  
 *get card data*  
 
-PATCH **/card**  
+PUT **/card/{id}**  
 *modify card data*  
 
 DELETE **/card/{id}**  

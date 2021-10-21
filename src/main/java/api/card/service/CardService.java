@@ -54,8 +54,8 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public CardData update(CardDto cardDto) throws Exception {
-		Optional<Card> optional = cardRepository.findById(cardDto.getCardId());
+	public CardData update(Long id, CardDto cardDto) throws Exception {
+		Optional<Card> optional = cardRepository.findById(id);
 		if (optional.isEmpty())
 			return new CardData(null, Optional.of(Errors.CARD_NOT_FOUND));
 

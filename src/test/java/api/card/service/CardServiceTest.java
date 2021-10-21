@@ -90,7 +90,7 @@ public class CardServiceTest {
 	}
 
 	private void whenUpdateIsCalled() throws Exception {
-		cardData = cardService.update(cardDto);
+		cardData = cardService.update(cardDto.getCardId(), cardDto);
 	}
 
 	private void whenGetIsCalled() throws Exception {
