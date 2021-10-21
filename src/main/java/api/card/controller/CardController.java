@@ -58,6 +58,7 @@ public class CardController {
 		RestResponse restResponse = new RestResponse();
 		try {
 			Optional<Card> optional = cardService.get(id);
+			LOG.info("get: optional=" + optional);
 			if (optional.isEmpty()) {
 				restResponse.setMessage(Errors.CARD_NOT_FOUND.getMessage());
 				restResponse.setStatus(ResponseStatus.ERROR.getStatus());
@@ -83,6 +84,9 @@ public class CardController {
 			if (cardData.getError().isPresent()) {
 				restResponse.setMessage(cardData.getError().get().getMessage());
 				restResponse.setStatus(ResponseStatus.ERROR.getStatus());
+				if (cardData.getError().get() == Errors.CARD_NOT_FOUND)
+					return new ResponseEntity<RestResponse>(restResponse, HttpStatus.NOT_FOUND);
+
 				return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
 			}
 
@@ -105,6 +109,9 @@ public class CardController {
 			if (cardData.getError().isPresent()) {
 				restResponse.setMessage(cardData.getError().get().getMessage());
 				restResponse.setStatus(ResponseStatus.ERROR.getStatus());
+				if (cardData.getError().get() == Errors.CARD_NOT_FOUND)
+					return new ResponseEntity<RestResponse>(restResponse, HttpStatus.NOT_FOUND);
+
 				return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
 			}
 

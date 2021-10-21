@@ -48,6 +48,10 @@ public class CardControllerTest {
 		url = new URL("http://localhost:" + port + "/card/" + cardDto.getCardId().toString());
 	}
 
+	private void givenCardId100Url() throws MalformedURLException {
+		url = new URL("http://localhost:" + port + "/card/100");
+	}
+
 	private void givenCustomerId1() {
 		this.customerId = 1L;
 	}
@@ -208,6 +212,17 @@ public class CardControllerTest {
 		// cleanup
 		givenCardIdUrl();
 		whenDeleteIsCalled();
+	}
+
+	@Test
+	public void getCardByIdNotFound() throws MalformedURLException, RestClientException, URISyntaxException {
+		givenUrl();
+		givenCustomerId1();
+		givenCreateCardDto1();
+
+		givenCardId100Url();
+		whenGetIsCalled();
+		thenNotFound();
 	}
 
 	@Test
