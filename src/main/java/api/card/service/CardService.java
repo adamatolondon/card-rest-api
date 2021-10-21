@@ -42,7 +42,7 @@ public class CardService {
 		card.setNumber(cardDto.getNumber());
 		LocalDate localDate = LocalDate.of(cardDto.getExpiryDateYear(), cardDto.getExpiryDateMonth(), 1);
 		card.setExpiryDate(localDate);
-		cardRepository.save(card);
+		card = cardRepository.save(card);
 		return new CardData(card, Optional.empty());
 	}
 
@@ -59,12 +59,40 @@ public class CardService {
 		if (optional.isEmpty())
 			return new CardData(null, Optional.of(Errors.CARD_NOT_FOUND));
 
+		if (cardDto.getCustomerId() == null || StringUtils.isEmpty(cardDto.getAccountHolder())
+				|| cardDto.getExpiryDateMonth() == null || cardDto.getExpiryDateYear() == null
+				|| StringUtils.isEmpty(cardDto.getNumber()))
+			return new CardData(null, Optional.of(Errors.MANDATORY_DATA));
+
+		Card card = optional.get();
+		card.setCustomerId(cardDto.getCustomerId());
+		card.setAccountHolderName(cardDto.getAccountHolder());
+		card.setNumber(cardDto.getNumber());
+		LocalDate localDate = LocalDate.of(cardDto.getExpiryDateYear(), cardDto.getExpiryDateMonth(), 1);
+		card.setExpiryDate(localDate);
+		card = cardRepository.save(card);
+		return new CardData(card, Optional.empty());
+	}
+
+	/**
+	 * Modify a card.
+	 * 
+	 * @param cardDto card data
+	 * @return the modified card data
+	 * @throws Exception
+	 */
+	@Transactional
+	public CardData patch(CardDto cardDto) throws Exception {
+		Optional<Card> optional = cardRepository.findById(cardDto.getCardId());
+		if (optional.isEmpty())
+			return new CardData(null, Optional.of(Errors.CARD_NOT_FOUND));
+
 		Card card = optional.get();
 		if (StringUtils.hasLength(cardDto.getAccountHolder()))
 			card.setAccountHolderName(cardDto.getAccountHolder());
 
 		if (StringUtils.hasLength(cardDto.getNumber()))
-			card.setAccountHolderName(cardDto.getNumber());
+			card.setNumber(cardDto.getNumber());
 
 		if (cardDto.getCustomerId() != null)
 			card.setCustomerId(cardDto.getCustomerId());

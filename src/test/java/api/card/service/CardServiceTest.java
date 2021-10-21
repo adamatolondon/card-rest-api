@@ -64,9 +64,9 @@ public class CardServiceTest {
 		cardDto.setCardId(optionalCard.get().getId());
 		cardDto.setCustomerId(customerId);
 		cardDto.setExpiryDateMonth(8);
-		cardDto.setAccountHolder(null);
-		cardDto.setExpiryDateYear(null);
-		cardDto.setNumber(null);
+//		cardDto.setAccountHolder(null);
+//		cardDto.setExpiryDateYear(null);
+//		cardDto.setNumber(null);
 	}
 
 	private void givenCustomerId1() {

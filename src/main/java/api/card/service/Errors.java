@@ -1,7 +1,7 @@
 package api.card.service;
 
 public enum Errors {
-	DUPLICATED_CARD_NUMBER(1, "Duplicated Card Number"), MANDATORY_DATA(2, "Missing mandatory data"),
+	NO_ERRORS(0, ""), DUPLICATED_CARD_NUMBER(1, "Duplicated Card Number"), MANDATORY_DATA(2, "Missing mandatory data"),
 	CARD_NOT_FOUND(3, "Card not found");
 
 	private int code;

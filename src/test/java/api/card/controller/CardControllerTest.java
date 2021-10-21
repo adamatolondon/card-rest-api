@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClientException;
 import api.card.Application;
 import api.card.model.CardDto;
 import api.card.model.CardListRestResponse;
+import api.card.model.ResponseStatus;
 import api.card.model.RestResponse;
 import api.card.service.Errors;
 
@@ -35,18 +36,16 @@ public class CardControllerTest {
 
 	private ResponseEntity<RestResponse> response;
 	private ResponseEntity<CardListRestResponse> cardListResponseEntity;
-	private RestResponse restResponse;
 
 	private CardDto cardDto;
 	private Long customerId;
-	private Long cardId;
 
 	private void givenUrl() throws MalformedURLException {
 		url = new URL("http://localhost:" + port + "/card");
 	}
 
 	private void givenCardIdUrl() throws MalformedURLException {
-		url = new URL("http://localhost:" + port + "/card/" + cardId);
+		url = new URL("http://localhost:" + port + "/card/" + cardDto.getCardId().toString());
 	}
 
 	private void givenCustomerId1() {
@@ -55,10 +54,6 @@ public class CardControllerTest {
 
 	private void givenCustomerId2() {
 		this.customerId = 2L;
-	}
-
-	private void givenCardId1() {
-		this.cardId = 1L;
 	}
 
 	private void givenCreateCardDto1() {
@@ -79,10 +74,11 @@ public class CardControllerTest {
 		cardDto.setNumber("7777111122223333");
 	}
 
-	private void givenPatchCardDto() {
-		cardDto = new CardDto();
-		cardDto.setCardId(cardId);
+	private void givenPutCardDto() {
 		cardDto.setExpiryDateMonth(7);
+//		cardDto.setAccountHolder(null);
+//		cardDto.setExpiryDateYear(null);
+//		cardDto.setNumber(null);
 	}
 
 	private void whenPostIsCalled() throws RestClientException, URISyntaxException {
@@ -90,15 +86,15 @@ public class CardControllerTest {
 	}
 
 	private void whenGetIsCalled() throws RestClientException, URISyntaxException {
-		cardListResponseEntity = testRestTemplate.getForEntity(url.toURI(), CardListRestResponse.class);
+		response = testRestTemplate.getForEntity(url.toURI(), RestResponse.class);
 	}
 
 	private void whenDeleteIsCalled() throws RestClientException, URISyntaxException {
 		testRestTemplate.delete(url.toURI());
 	}
 
-	private void whenPatchIsCalled() throws RestClientException, URISyntaxException {
-		restResponse = testRestTemplate.patchForObject(url.toURI(), cardDto, RestResponse.class);
+	private void whenPutIsCalled() throws RestClientException, URISyntaxException {
+		testRestTemplate.put(url.toURI(), cardDto);
 	}
 
 	private void thenOk() {
@@ -119,7 +115,8 @@ public class CardControllerTest {
 
 	private void thenCard1IsCorrect() {
 		RestResponse restResponse = response.getBody();
-		CardDto cardDto = restResponse.getCardDto();
+		cardDto = restResponse.getCardDto();
+		Assertions.assertNotNull(cardDto);
 		Assertions.assertNotNull(cardDto.getCardId());
 		Assertions.assertEquals(customerId, cardDto.getCustomerId());
 		Assertions.assertEquals("Cary Grant", cardDto.getAccountHolder());
@@ -130,13 +127,13 @@ public class CardControllerTest {
 
 	private void thenCard2IsCorrect() {
 		RestResponse restResponse = response.getBody();
-		CardDto cardDto = restResponse.getCardDto();
+		cardDto = restResponse.getCardDto();
 		Assertions.assertNotNull(cardDto.getCardId());
 		Assertions.assertEquals(customerId, cardDto.getCustomerId());
 		Assertions.assertEquals("Humphrey Bogart", cardDto.getAccountHolder());
 		Assertions.assertEquals("7777111122223333", cardDto.getNumber());
 		Assertions.assertEquals(2025, cardDto.getExpiryDateYear());
-		Assertions.assertEquals(3, cardDto.getExpiryDateMonth());
+		Assertions.assertEquals(4, cardDto.getExpiryDateMonth());
 	}
 
 	private void thenCardListIsCorrect() {
@@ -158,8 +155,10 @@ public class CardControllerTest {
 		Assertions.assertTrue(list.isEmpty());
 	}
 
-	private void thenCardMonthIsCorrect() {
-		CardDto cardDto = restResponse.getCardDto();
+	private void thenCard1MonthIsCorrect() {
+		RestResponse restResponse = response.getBody();
+		cardDto = restResponse.getCardDto();
+		Assertions.assertNotNull(cardDto);
 		Assertions.assertNotNull(cardDto.getCardId());
 		Assertions.assertEquals(customerId, cardDto.getCustomerId());
 		Assertions.assertEquals("Cary Grant", cardDto.getAccountHolder());
@@ -174,7 +173,8 @@ public class CardControllerTest {
 		Assertions.assertNull(cardDto);
 		Assertions.assertNotNull(restResponse.getMessage());
 		Assertions.assertTrue(!restResponse.getMessage().isEmpty());
-		Assertions.assertEquals(Errors.DUPLICATED_CARD_NUMBER.getCode(), restResponse.getCode());
+		Assertions.assertEquals(ResponseStatus.ERROR.getStatus(), restResponse.getStatus());
+		Assertions.assertEquals(Errors.DUPLICATED_CARD_NUMBER.getMessage(), restResponse.getMessage());
 	}
 
 	@Test
@@ -185,39 +185,67 @@ public class CardControllerTest {
 		whenPostIsCalled();
 		thenCreated();
 		thenCard1IsCorrect();
+
+		// cleanup
+		givenCardIdUrl();
+		whenDeleteIsCalled();
 	}
 
 	@Test
 	public void getCardById() throws MalformedURLException, RestClientException, URISyntaxException {
+		givenUrl();
+		givenCustomerId1();
+		givenCreateCardDto1();
+		whenPostIsCalled();
+		thenCreated();
+		thenCard1IsCorrect();
+
 		givenCardIdUrl();
-		givenCardId1();
 		whenGetIsCalled();
 		thenOk();
 		thenCard1IsCorrect();
+
+		// cleanup
+		givenCardIdUrl();
+		whenDeleteIsCalled();
 	}
 
 	@Test
 	public void deleteCard() throws MalformedURLException, RestClientException, URISyntaxException {
+		givenUrl();
+		givenCustomerId1();
+		givenCreateCardDto1();
+		whenPostIsCalled();
+		thenCreated();
+		thenCard1IsCorrect();
+
 		givenCardIdUrl();
-		givenCardId1();
 		whenDeleteIsCalled();
-		thenOk();
 
 		whenGetIsCalled();
 		thenNotFound();
 	}
 
 	@Test
-	public void patchCard() throws MalformedURLException, RestClientException, URISyntaxException {
+	public void putCard() throws MalformedURLException, RestClientException, URISyntaxException {
 		givenUrl();
-		givenCardId1();
-		givenPatchCardDto();
-		whenPatchIsCalled();
-		thenOk();
+		givenCustomerId1();
+		givenCreateCardDto1();
+		whenPostIsCalled();
+		thenCreated();
+		thenCard1IsCorrect();
+
+		givenCardIdUrl();
+		givenPutCardDto();
+		whenPutIsCalled();
 
 		whenGetIsCalled();
 		thenOk();
-		thenCardMonthIsCorrect();
+		thenCard1MonthIsCorrect();
+
+		// cleanup
+		givenCardIdUrl();
+		whenDeleteIsCalled();
 	}
 
 	@Test
@@ -232,6 +260,10 @@ public class CardControllerTest {
 		whenPostIsCalled();
 		thenOk();
 		thenCardNumberDuplicated();
+
+		// cleanup
+		givenCardIdUrl();
+		whenDeleteIsCalled();
 	}
 
 }

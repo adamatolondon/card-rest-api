@@ -13,12 +13,13 @@ public class Card {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	@Column(name = "customer_id")
+	@Column(name = "customer_id", nullable = false)
 	private Long customerId;
+	@Column(nullable = false)
 	private String number;
-	@Column(name = "account_holder")
+	@Column(name = "account_holder", nullable = false)
 	private String accountHolderName;
-	@Column(name = "expiry_date")
+	@Column(name = "expiry_date", nullable = false)
 	private LocalDate expiryDate;
 
 	public Long getId() {

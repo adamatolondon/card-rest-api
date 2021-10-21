@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class RestResponse {
-	private int code;
+	private String status;
 	private String message;
 	private CardDto cardDto;
 
-	public int getCode() {
-		return code;
+	public String getStatus() {
+		return status;
 	}
 
-	public void setCode(int code) {
-		this.code = code;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public String getMessage() {

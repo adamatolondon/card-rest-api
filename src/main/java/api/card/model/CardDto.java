@@ -56,4 +56,14 @@ public class CardDto {
 		this.expiryDateMonth = expiryDateMonth;
 	}
 
+	public static CardDto of(Card card) {
+		CardDto cardDto = new CardDto();
+		cardDto.setCardId(card.getId());
+		cardDto.setCustomerId(card.getCustomerId());
+		cardDto.setAccountHolder(card.getAccountHolderName());
+		cardDto.setExpiryDateMonth(card.getExpiryDate().getMonthValue());
+		cardDto.setExpiryDateYear(card.getExpiryDate().getYear());
+		cardDto.setNumber(card.getNumber());
+		return cardDto;
+	}
 }
