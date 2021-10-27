@@ -26,15 +26,10 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public CardData save(CardDto cardDto) throws Exception {
-		if (cardDto.getCustomerId() == null || StringUtils.isEmpty(cardDto.getAccountHolder())
-				|| cardDto.getExpiryDateMonth() == null || cardDto.getExpiryDateYear() == null
-				|| StringUtils.isEmpty(cardDto.getNumber()))
-			return new CardData(null, Optional.of(Errors.MANDATORY_DATA));
-
+	public Card save(CardDto cardDto) throws Exception {
 		List<Card> cards = cardRepository.findByNumberAndCustomerId(cardDto.getNumber(), cardDto.getCustomerId());
 		if (!cards.isEmpty())
-			return new CardData(null, Optional.of(Errors.DUPLICATED_CARD_NUMBER));
+			throw new IllegalArgumentException("Duplicated Card Number");
 
 		Card card = new Card();
 		card.setCustomerId(cardDto.getCustomerId());
@@ -43,7 +38,7 @@ public class CardService {
 		LocalDate localDate = LocalDate.of(cardDto.getExpiryDateYear(), cardDto.getExpiryDateMonth(), 1);
 		card.setExpiryDate(localDate);
 		card = cardRepository.save(card);
-		return new CardData(card, Optional.empty());
+		return card;
 	}
 
 	/**
@@ -54,15 +49,10 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public CardData update(Long id, CardDto cardDto) throws Exception {
+	public Card update(Long id, CardDto cardDto) throws Exception {
 		Optional<Card> optional = cardRepository.findById(id);
 		if (optional.isEmpty())
-			return new CardData(null, Optional.of(Errors.CARD_NOT_FOUND));
-
-		if (cardDto.getCustomerId() == null || StringUtils.isEmpty(cardDto.getAccountHolder())
-				|| cardDto.getExpiryDateMonth() == null || cardDto.getExpiryDateYear() == null
-				|| StringUtils.isEmpty(cardDto.getNumber()))
-			return new CardData(null, Optional.of(Errors.MANDATORY_DATA));
+			throw new CardNotFoundException("Card not found id=" + id);
 
 		Card card = optional.get();
 		card.setCustomerId(cardDto.getCustomerId());
@@ -71,7 +61,7 @@ public class CardService {
 		LocalDate localDate = LocalDate.of(cardDto.getExpiryDateYear(), cardDto.getExpiryDateMonth(), 1);
 		card.setExpiryDate(localDate);
 		card = cardRepository.save(card);
-		return new CardData(card, Optional.empty());
+		return card;
 	}
 
 	/**
@@ -82,10 +72,10 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public CardData patch(CardDto cardDto) throws Exception {
+	public Card patch(CardDto cardDto) throws Exception {
 		Optional<Card> optional = cardRepository.findById(cardDto.getCardId());
 		if (optional.isEmpty())
-			return new CardData(null, Optional.of(Errors.CARD_NOT_FOUND));
+			throw new CardNotFoundException("Card not found id=" + cardDto.getCardId());
 
 		Card card = optional.get();
 		if (StringUtils.hasLength(cardDto.getAccountHolder()))
@@ -109,7 +99,7 @@ public class CardService {
 			card.setExpiryDate(localDate);
 		}
 
-		return new CardData(cardRepository.save(card), Optional.empty());
+		return cardRepository.save(card);
 	}
 
 	/**
@@ -131,12 +121,12 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public CardData remove(Long id) throws Exception {
+	public Card remove(Long id) throws Exception {
 		Optional<Card> optional = cardRepository.findById(id);
 		if (optional.isEmpty())
-			return new CardData(null, Optional.of(Errors.CARD_NOT_FOUND));
+			throw new CardNotFoundException("Card not found id=" + id);
 
 		cardRepository.delete(optional.get());
-		return new CardData(optional.get(), Optional.empty());
+		return optional.get();
 	}
 }

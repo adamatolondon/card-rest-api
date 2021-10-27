@@ -2,6 +2,8 @@ package api.card.controller;
 
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ import api.card.model.Card;
 import api.card.model.CardDto;
 import api.card.model.ResponseStatus;
 import api.card.model.RestResponse;
-import api.card.service.CardData;
+import api.card.service.CardNotFoundException;
 import api.card.service.CardService;
 import api.card.service.Errors;
 
@@ -32,19 +34,17 @@ public class CardController {
 	private CardService cardService;
 
 	@PostMapping(path = "/card")
-	public ResponseEntity<RestResponse> create(@RequestBody CardDto cardDto) {
+	public ResponseEntity<RestResponse> create(@Valid @RequestBody CardDto cardDto) {
 		RestResponse restResponse = new RestResponse();
 		try {
-			CardData cardData = cardService.save(cardDto);
-			if (cardData.getError().isPresent()) {
-				restResponse.setMessage(cardData.getError().get().getMessage());
-				restResponse.setStatus(ResponseStatus.ERROR.getStatus());
-				return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
-			}
-
-			restResponse.setCardDto(CardDto.of(cardData.getCard()));
+			Card card = cardService.save(cardDto);
+			restResponse.setCardDto(CardDto.of(card));
 			restResponse.setStatus(ResponseStatus.SUCCESS.getStatus());
 			return new ResponseEntity<RestResponse>(restResponse, HttpStatus.CREATED);
+		} catch (IllegalArgumentException e) {
+			restResponse.setMessage(e.getMessage());
+			restResponse.setStatus(ResponseStatus.ERROR.getStatus());
+			return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
 			restResponse.setMessage(e.getMessage());
@@ -77,22 +77,17 @@ public class CardController {
 	}
 
 	@PutMapping(value = "/card/{id}")
-	public ResponseEntity<RestResponse> patch(@PathVariable Long id, @RequestBody CardDto cardDto) {
+	public ResponseEntity<RestResponse> patch(@PathVariable Long id, @Valid @RequestBody CardDto cardDto) {
 		RestResponse restResponse = new RestResponse();
 		try {
-			CardData cardData = cardService.update(id, cardDto);
-			if (cardData.getError().isPresent()) {
-				restResponse.setMessage(cardData.getError().get().getMessage());
-				restResponse.setStatus(ResponseStatus.ERROR.getStatus());
-				if (cardData.getError().get() == Errors.CARD_NOT_FOUND)
-					return new ResponseEntity<RestResponse>(restResponse, HttpStatus.NOT_FOUND);
-
-				return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
-			}
-
-			restResponse.setCardDto(CardDto.of(cardData.getCard()));
+			Card card = cardService.update(id, cardDto);
+			restResponse.setCardDto(CardDto.of(card));
 			restResponse.setStatus(ResponseStatus.SUCCESS.getStatus());
 			return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
+		} catch (CardNotFoundException e) {
+			restResponse.setMessage(e.getMessage());
+			restResponse.setStatus(ResponseStatus.ERROR.getStatus());
+			return new ResponseEntity<RestResponse>(restResponse, HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
 			restResponse.setMessage(e.getMessage());
@@ -105,19 +100,14 @@ public class CardController {
 	public ResponseEntity<RestResponse> delete(@PathVariable Long id) {
 		RestResponse restResponse = new RestResponse();
 		try {
-			CardData cardData = cardService.remove(id);
-			if (cardData.getError().isPresent()) {
-				restResponse.setMessage(cardData.getError().get().getMessage());
-				restResponse.setStatus(ResponseStatus.ERROR.getStatus());
-				if (cardData.getError().get() == Errors.CARD_NOT_FOUND)
-					return new ResponseEntity<RestResponse>(restResponse, HttpStatus.NOT_FOUND);
-
-				return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
-			}
-
-			restResponse.setCardDto(CardDto.of(cardData.getCard()));
+			Card card = cardService.remove(id);
+			restResponse.setCardDto(CardDto.of(card));
 			restResponse.setStatus(ResponseStatus.SUCCESS.getStatus());
 			return new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
+		} catch (CardNotFoundException e) {
+			restResponse.setMessage(e.getMessage());
+			restResponse.setStatus(ResponseStatus.ERROR.getStatus());
+			return new ResponseEntity<RestResponse>(restResponse, HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
 			restResponse.setMessage(e.getMessage());

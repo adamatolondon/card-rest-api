@@ -21,7 +21,7 @@ public class CardServiceTest {
 
 	private CardDto cardDto;
 	private Long customerId;
-	private CardData cardData;
+	private Card card;
 	private Optional<Card> optionalCard;
 
 	private void givenCard1() {
@@ -86,25 +86,28 @@ public class CardServiceTest {
 	}
 
 	private void whenSaveIsCalled() throws Exception {
-		cardData = cardService.save(cardDto);
+		card = cardService.save(cardDto);
+	}
+
+	private void whenSaveIsCalledIllegalArgExceptionIsThrown() throws Exception {
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			card = cardService.save(cardDto);
+		});
 	}
 
 	private void whenUpdateIsCalled() throws Exception {
-		cardData = cardService.update(cardDto.getCardId(), cardDto);
+		card = cardService.update(cardDto.getCardId(), cardDto);
 	}
 
 	private void whenGetIsCalled() throws Exception {
-		optionalCard = cardService.get(cardData.getCard().getId());
+		optionalCard = cardService.get(card.getId());
 	}
 
 	private void whenRemoveIsCalled() throws Exception {
-		cardService.remove(cardData.getCard().getId());
+		cardService.remove(card.getId());
 	}
 
 	private void thenCard1IsCreated() {
-		Assertions.assertNotNull(cardData);
-		Assertions.assertTrue(cardData.getError().isEmpty());
-		Card card = cardData.getCard();
 		Assertions.assertNotNull(card);
 		Assertions.assertEquals(customerId, card.getCustomerId());
 		Assertions.assertEquals("Cary Grant", card.getAccountHolderName());
@@ -115,10 +118,8 @@ public class CardServiceTest {
 	}
 
 	private void thenCard2IsCreated() {
-		Assertions.assertNotNull(cardData);
-		Assertions.assertTrue(cardData.getError().isEmpty());
-		Card card = cardData.getCard();
 		Assertions.assertNotNull(card);
+		Assertions.assertNotNull(card.getId());
 		Assertions.assertEquals(customerId, card.getCustomerId());
 		Assertions.assertEquals("Spencer Tracy", card.getAccountHolderName());
 		Assertions.assertEquals("3333111122223333", card.getNumber());
@@ -128,9 +129,6 @@ public class CardServiceTest {
 	}
 
 	private void thenCard2IsModified() {
-		Assertions.assertNotNull(cardData);
-		Assertions.assertTrue(cardData.getError().isEmpty());
-		Card card = cardData.getCard();
 		Assertions.assertNotNull(card);
 		Assertions.assertEquals(customerId, card.getCustomerId());
 		Assertions.assertEquals("Spencer Tracy", card.getAccountHolderName());
@@ -141,9 +139,6 @@ public class CardServiceTest {
 	}
 
 	private void thenCard3IsCreated() {
-		Assertions.assertNotNull(cardData);
-		Assertions.assertTrue(cardData.getError().isEmpty());
-		Card card = cardData.getCard();
 		Assertions.assertNotNull(card);
 		Assertions.assertEquals(customerId, card.getCustomerId());
 		Assertions.assertEquals("Charlie Chaplin", card.getAccountHolderName());
@@ -154,9 +149,6 @@ public class CardServiceTest {
 	}
 
 	private void thenCard4IsCreated() {
-		Assertions.assertNotNull(cardData);
-		Assertions.assertTrue(cardData.getError().isEmpty());
-		Card card = cardData.getCard();
 		Assertions.assertNotNull(card);
 		Assertions.assertEquals(customerId, card.getCustomerId());
 		Assertions.assertEquals("Stan Laurel", card.getAccountHolderName());
@@ -164,12 +156,6 @@ public class CardServiceTest {
 		Assertions.assertNotNull(card.getExpiryDate());
 		Assertions.assertEquals(2, card.getExpiryDate().getMonthValue());
 		Assertions.assertEquals(2028, card.getExpiryDate().getYear());
-	}
-
-	private void thenCardIsDuplicated() {
-		Assertions.assertNotNull(cardData);
-		Assertions.assertTrue(cardData.getError().isPresent());
-		Assertions.assertEquals(cardData.getError().get(), Errors.DUPLICATED_CARD_NUMBER);
 	}
 
 	private void thenCardIsMissing() {
@@ -223,7 +209,6 @@ public class CardServiceTest {
 		whenSaveIsCalled();
 		thenCard4IsCreated();
 
-		whenSaveIsCalled();
-		thenCardIsDuplicated();
+		whenSaveIsCalledIllegalArgExceptionIsThrown();
 	}
 }

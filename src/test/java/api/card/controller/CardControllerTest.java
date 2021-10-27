@@ -3,7 +3,6 @@ package api.card.controller;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,6 @@ import org.springframework.web.client.RestClientException;
 
 import api.card.Application;
 import api.card.model.CardDto;
-import api.card.model.CardListRestResponse;
 import api.card.model.ResponseStatus;
 import api.card.model.RestResponse;
 import api.card.service.Errors;
@@ -35,7 +33,6 @@ public class CardControllerTest {
 	private TestRestTemplate testRestTemplate;
 
 	private ResponseEntity<RestResponse> response;
-	private ResponseEntity<CardListRestResponse> cardListResponseEntity;
 
 	private CardDto cardDto;
 	private Long customerId;
@@ -109,6 +106,10 @@ public class CardControllerTest {
 		Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
 	}
 
+	private void thenBadRequest() {
+		Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+	}
+
 	private void thenNotFound() {
 		Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
 	}
@@ -138,25 +139,6 @@ public class CardControllerTest {
 		Assertions.assertEquals("7777111122223333", cardDto.getNumber());
 		Assertions.assertEquals(2025, cardDto.getExpiryDateYear());
 		Assertions.assertEquals(4, cardDto.getExpiryDateMonth());
-	}
-
-	private void thenCardListIsCorrect() {
-		CardListRestResponse cardListRestResponse = cardListResponseEntity.getBody();
-		List<CardDto> list = cardListRestResponse.getList();
-		Assertions.assertEquals(1, list.size());
-		CardDto cardDto = list.get(0);
-		Assertions.assertNotNull(cardDto.getCardId());
-		Assertions.assertEquals(customerId, cardDto.getCustomerId());
-		Assertions.assertEquals("Cary Grant", cardDto.getAccountHolder());
-		Assertions.assertEquals("0000111122223333", cardDto.getNumber());
-		Assertions.assertEquals(2025, cardDto.getExpiryDateYear());
-		Assertions.assertEquals(6, cardDto.getExpiryDateMonth());
-	}
-
-	private void thenCardListIsEmpty() {
-		CardListRestResponse cardListRestResponse = cardListResponseEntity.getBody();
-		List<CardDto> list = cardListRestResponse.getList();
-		Assertions.assertTrue(list.isEmpty());
 	}
 
 	private void thenCard1MonthIsCorrect() {
@@ -193,6 +175,14 @@ public class CardControllerTest {
 		// cleanup
 		givenCardIdUrl();
 		whenDeleteIsCalled();
+	}
+
+	@Test
+	public void newCardMandatoryData() throws MalformedURLException, RestClientException, URISyntaxException {
+		givenUrl();
+		givenCreateCardDto1();
+		whenPostIsCalled();
+		thenBadRequest();
 	}
 
 	@Test
