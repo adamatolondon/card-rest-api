@@ -38,10 +38,6 @@ public class CardControllerExceptionTest {
 	@Mocked
 	private CardService cardService;
 
-	private void givenUrl() throws MalformedURLException {
-		url = new URL("http://localhost:" + port + "/card");
-	}
-
 	private void givenCardIdUrl() throws MalformedURLException {
 		url = new URL("http://localhost:" + port + "/card/" + cardId);
 	}
@@ -63,11 +59,10 @@ public class CardControllerExceptionTest {
 		new Expectations() {
 			{
 				cardService.get(anyLong);
-				result = new IllegalArgumentException("Argument exception");
+				result = new IllegalStateException("State exception");
 			}
 		};
 
-		givenUrl();
 		givenCardId1();
 		givenCardIdUrl();
 		whenGetIsCalled();

@@ -1,14 +1,15 @@
 package api.card.model;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 public class CardDto {
 	private Long cardId;
 	@NotNull(message = "Customer Id canot be null")
 	private Long customerId;
-	@NotNull(message = "Number canot be null")
+	@NotEmpty(message = "Number canot be null")
 	private String number;
-	@NotNull(message = "Account Holder canot be null")
+	@NotEmpty(message = "Account Holder canot be null")
 	private String accountHolder;
 	@NotNull(message = "Year canot be null")
 	private Integer expiryDateYear;

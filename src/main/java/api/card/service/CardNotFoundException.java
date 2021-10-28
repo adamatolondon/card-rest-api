@@ -1,6 +1,6 @@
 package api.card.service;
 
-public class CardNotFoundException extends Exception {
+public class CardNotFoundException extends RuntimeException {
 
 	public CardNotFoundException() {
 	}

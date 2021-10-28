@@ -26,7 +26,7 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Card save(CardDto cardDto) throws Exception {
+	public Card save(CardDto cardDto) {
 		List<Card> cards = cardRepository.findByNumberAndCustomerId(cardDto.getNumber(), cardDto.getCustomerId());
 		if (!cards.isEmpty())
 			throw new IllegalArgumentException("Duplicated Card Number");
@@ -49,7 +49,7 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Card update(Long id, CardDto cardDto) throws Exception {
+	public Card update(Long id, CardDto cardDto) {
 		Optional<Card> optional = cardRepository.findById(id);
 		if (optional.isEmpty())
 			throw new CardNotFoundException("Card not found id=" + id);
@@ -110,7 +110,7 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Optional<Card> get(Long id) throws Exception {
+	public Optional<Card> get(Long id) {
 		return cardRepository.findById(id);
 	}
 
@@ -121,7 +121,7 @@ public class CardService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Card remove(Long id) throws Exception {
+	public Card remove(Long id) {
 		Optional<Card> optional = cardRepository.findById(id);
 		if (optional.isEmpty())
 			throw new CardNotFoundException("Card not found id=" + id);
